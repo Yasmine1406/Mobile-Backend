@@ -12,5 +12,12 @@ router.get('/', (req, res) => {
 
 router.post('/add', authMiddleware.authenticateVendeur, produitController.addProduit);
 
+
+// Route to delete a product
+router.delete('/delete/:idProduit', authMiddleware.authenticateVendeur, produitController.deleteProduit);
+
+// Update a product
+router.put('/update/:productId', authMiddleware.authenticateVendeur, produitController.updateProduit);
+
 // Export the router
 module.exports = router;
