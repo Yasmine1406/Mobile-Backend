@@ -103,7 +103,6 @@ exports.updateProduitQuantité = async (req, res) => {
 };
 
 
-// Validate the commande
 exports.validateCommande = async (req, res) => {
   const { client } = req; // Access the authenticated client from the request
 
@@ -123,12 +122,21 @@ exports.validateCommande = async (req, res) => {
     // Update the statut to true, indicating the commande is validated
     await commande.update({ statut: true });
 
+    // Update product quantities
+    for (const produit of commande.produits) {
+      // Ensure the product quantity is subtracted from the stock
+      await produit.update({
+        stock: produit.stock - produit.CommandeProduit.quantity,
+      });
+    }
+
     res.json({ message: 'Commande validated successfully' });
   } catch (error) {
     console.error('Error validating commande:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
