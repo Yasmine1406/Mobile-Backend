@@ -1,8 +1,10 @@
 // produitRoutes.js
 const express = require('express');
 const router = express.Router();
-const produitController = require('../controllers/produitController');
-const authMiddleware = require('../middlware/authenMiddlware');
+const authenMiddleware = require('../middlware/authenMiddlware');
+const addProduit = require('../controllers/produitController');
+const deleteProduit = require('../controllers/produitController');
+const updateProduit = require('../controllers/produitController');
 
 // Define routes related to produits (common for both client and vendeur)
 router.get('/', (req, res) => {
@@ -10,14 +12,16 @@ router.get('/', (req, res) => {
   res.send('Produit route');
 });
 
-router.post('/add', authMiddleware.authenticateVendeur, produitController.addProduit);
+//Add produit
+router.post('/add', (req,res) => addProduit(req, res,req.app.get('db')));
 
 
-// Route to delete a product
-router.delete('/delete/:idProduit', authMiddleware.authenticateVendeur, produitController.deleteProduit);
+
+// // Route to delete a product
+router.delete('/delete',(req,res) => deleteProduit(req, res, req.app.get('db')));
 
 // Update a product
-router.put('/update/:productId', authMiddleware.authenticateVendeur, produitController.updateProduit);
+ router.put('/update',(req,res) => updateProduit(req, res, req.app.get('db')));
 
 // Export the router
 module.exports = router;

@@ -1,6 +1,7 @@
 // Import necessary libraries and modules
 const express = require('express');
 const mysql = require('mysql2');
+const util = require('util');
 const bodyParser = require('body-parser');
 const { Sequelize } = require('sequelize'); 
 const cors=require("cors");
@@ -45,8 +46,24 @@ app.use('/api/commandes', commandeRoutes);
 
 app.set('db', db);
 
+// Promisify the query method
+db.query = util.promisify(db.query);
+
+// Define a query function
+const query = async (sql, values) => {
+  try {
+    const results = await db.query(sql, values);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
 
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
+
+
+// Export the database connection and the query function
+// module.exports = { db, query }

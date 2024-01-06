@@ -1,11 +1,11 @@
 // middleware/authMiddleware.js
 const Vendeur = require('../models/vendeur');
 
-exports.authenticateVendeur = async (req, res, next) => {
+exports.authenticateVendeur = async (req, res, next,db) => {
   const { idVendeur } = req.body;
 
   try {
-    const vendeur = await Vendeur.findById(idVendeur);
+    const vendeur = await Vendeur.findById(idVendeur,db);
 
     if (!vendeur) {
       return res.status(401).json({ error: 'Unauthorized: vendeur not found' });
@@ -28,7 +28,7 @@ exports.authenticateClient = async (req, res, next) => {
 
   try {
     // Check if the client with the provided idClient exists in the database
-    const client = await Client.findByPk(idClient);
+    const client = await Client.findById(idClient);
 
     if (!client) {
       return res.status(401).json({ error: 'Unauthorized: Client not found' });
