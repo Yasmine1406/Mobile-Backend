@@ -72,6 +72,28 @@ const Produit = {
       throw error;
     }
   },
+  findQuantitéByIdProduit: async (idProduit, db) => {
+      
+    const query = 'SELECT quantité FROM produit WHERE idProduit = ?';
+    const queryAsync = util.promisify(db.query).bind(db);
+    try {
+      const results = await queryAsync(query, [idProduit]);
+      console.log('SQL Query:', query);
+      console.log('Query Parameters:', [idProduit]);
+      console.log('Query Results:', results);
+
+      if (results.length === 0) {
+        console.log('No matching quantité found for idProduit:', idProduit);
+        return null;
+      } else {
+        console.log('Found quantité:', results[0].quantité);
+        return results[0].quantité;
+      }
+    } catch (error) {
+      console.error('Error executing findQuantitéByIdProduit query:', error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Produit;

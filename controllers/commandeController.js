@@ -4,6 +4,8 @@ const uuid = require('uuid');
 const Produit = require('../models/produit');
 const Commande = require('../models/commande');
 
+
+//AddProduitToCommande
 async function addProduitToCommande(req, res, db) {
   const { idProduit, idClient, quantité } = req.body;
   console.log(idClient);
@@ -118,10 +120,29 @@ async function deleteProduitFromCommande(req, res, db) {
   }
 }
 
+  //Get Produits from commande
+  async function getAllProduitsFromCommande(req, res, db) {
+    const sql = 'SELECT * FROM commande WHERE idClient = ?';
+    const {idClient} = req.query;
+  
+    db.query(sql, [idClient],(err, result) => {
+      if (err) {
+        console.error('Error fetching produits:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      console.log(result);
+  
+      res.json({ message: 'Produits fetched successfully', data: result });
+    });
+  }
+
+
+//ValidateCommande
 async function validateCommande (req, res, db) {
   
   const  {idClient}  = req.body;
   console.log(idClient);
+  const quantitéStock = Produit.findQuantitéByIdProduit;
   const sql = 'UPDATE commande SET statut = ? WHERE idClient = ?';
   const statut = true;
   const values = [statut, idClient];
@@ -146,5 +167,6 @@ module.exports = {
   addProduitToCommande,
   deleteProduitFromCommande,
   validateCommande,
+  getAllProduitsFromCommande,
 };
 

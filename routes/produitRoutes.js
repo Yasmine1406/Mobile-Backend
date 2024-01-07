@@ -1,10 +1,7 @@
 // produitRoutes.js
 const express = require('express');
 const router = express.Router();
-const addProduit = require('../controllers/produitController');
-const deleteProduit = require('../controllers/produitController');
-const updateProduit = require('../controllers/produitController');
-const getAllProduits = require('../controllers/produitController');
+const {addProduit,getProduitStock, deleteProduit, updateProduit, getAllProduits }= require('../controllers/produitController');
 
 // Define routes related to produits (common for both client and vendeur)
 router.get('/', (req, res) => {
@@ -25,6 +22,9 @@ router.delete('/delete',(req,res) => deleteProduit(req, res, req.app.get('db')))
 
 // GetAllProducts
 router.get('/getAll',(req,res) => getAllProduits(req, res, req.app.get('db')));
+
+// GetProductStock
+router.get('/getProductStock',(req,res) => getProduitStock(req, res, req.app.get('db')));
 
 // Export the router
 module.exports = router;

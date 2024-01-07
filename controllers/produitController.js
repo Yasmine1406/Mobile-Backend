@@ -6,14 +6,14 @@ const uuid = require('uuid');
 // Add a new product
 async function addProduit (req, res,db) {
 
-  const { nomProduit, quantité, dateDePéremption, prix, idVendeur, idCategorie } = req.body;
+  const { nomProduit, quantité, dateDePéremption, prix, idVendeur} = req.body;
 
 
   // Generate a random idProduit using uuid
   const idProduit = uuid.v4();
   // Insert the  produit into the database
-  const sql = 'INSERT INTO produit (idProduit, nomProduit, quantité, dateDePéremption, prix, idVendeur, idCategorie) VALUES (?, ?, ?, ?, ?, ?,?)';
-  const values = [idProduit, nomProduit, quantité, dateDePéremption, prix, idVendeur, idCategorie];
+  const sql = 'INSERT INTO produit (idProduit, nomProduit, quantité, dateDePéremption, prix, idVendeur) VALUES (?, ?, ?, ?, ?, ?)';
+  const values = [idProduit, nomProduit, quantité, dateDePéremption, prix, idVendeur];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -78,9 +78,29 @@ async function getAllProduits(req, res, db) {
 }
 
 
-module.exports = addProduit;
-module.exports = deleteProduit;
-module.exports = updateProduit;
-module.exports = getAllProduits;
+//GetProduitFromStock
+async function getProduitStock(req, res, db) {
+  const sql = 'SELECT * FROM produit WHERE idProduit = ?';
+  const {idProduit} = req.query;
+
+  db.query(sql,[idProduit], (err, result) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    console.log(result);
+
+    res.json({ message: 'Products fetched successfully', data: result });
+  });
+}
+
+
+module.exports = {
+  addProduit,
+  deleteProduit,
+  updateProduit,
+  getAllProduits,
+  getProduitStock,
+}
 
 

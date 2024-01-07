@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 
 const commandeController = require('../controllers/commandeController');
-const { addProduitToCommande, deleteProduitFromCommande, validateCommande, } = require('../controllers/commandeController');
+const { addProduitToCommande, deleteProduitFromCommande, validateCommande, getAllProduitsFromCommande,} = require('../controllers/commandeController');
 
 
 // Add a produit to the commande
@@ -23,6 +23,9 @@ router.delete('/deleteFromCommande', (req,res) => deleteProduitFromCommande(req,
 
 // Validate the commande
 router.put('/validate', (req,res) => validateCommande(req, res,req.app.get('db')));
+
+//GetProduits from Commande
+router.get('/getCommande',(req,res) => getAllProduitsFromCommande(req, res,req.app.get('db')));
 
 // Export the router
 module.exports = router;
