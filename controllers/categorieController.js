@@ -21,3 +21,20 @@ const categories = [
       res.status(404).json({ error: 'Categorie not found' });
     }
   };
+
+  //Get all categories
+async function getAllCategories(req, res, db) {
+  const sql = 'SELECT * FROM categorie';
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching categories:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    console.log(result);
+
+    res.json({ message: 'Categories fetched successfully', data: result });
+  });
+}
+
+module.exports = getAllCategories;

@@ -1,136 +1,150 @@
 // controllers/commandeController.js
-const { Commande, Produit } = require('../models/commande');
+const Client = require('../models/client');
+const uuid = require('uuid');
+const Produit = require('../models/produit');
+const Commande = require('../models/commande');
 
-// Add a produit to the commande
-async function addProduitToCommande (req, res, db) {
-  const { idClient, idProduit, quantité } = req.body;
-
-  // Generate a random idCommande using uuid
-  const idCommande = uuid.v4();
-  // Set statut as False by default
+async function addProduitToCommande(req, res, db) {
+  const { idProduit, idClient, quantité } = req.body;
+  console.log(idClient);
   const statut = 'False';
-  // Insert the  produit into the commande
-  const sql = 'INSERT INTO commande (idCommande, idproduit, idClient, quantité, statut) VALUES (?, ?, ?, ?, ?)';
-  const values = [idClient, idProduit, quantité];
+  const idCommandeinit = uuid.v4();
 
-  db.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Error adding product:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+  try {
+
+    // Check if the client with the provided clientId exists
+    console.log(idClient);
+    const commande = await Commande.findIdCommandeByIdClient(idClient, db);
+    console.log(commande);
+    if (!commande) {
+      // Add produit to the new commande
+      const sqlAddInit = 'INSERT INTO commande (idCommande, idProduit, idClient, statut, quantité) VALUES (?, ?, ?, ?, ?)';
+      const valuesAddInit = [idCommandeinit, idProduit, idClient, statut, 1];
+
+      db.query(sqlAddInit, valuesAddInit, (err, result) => {
+        if (err) {
+          console.error('Error adding produit to commande:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        else{
+          console.log(result)
+          res.json({ message: 'Product added to commande successfully' });
+      }
+      });
+    } else {
+      console.log(idClient);
+      // Check if the product with the provided productId exists
+      const produit = await Produit.findByIdProduitInCommande(idProduit, idClient, db);
+      console.log(produit);
+
+      if (!produit) {
+        // Add the produit to the commande
+        const idCommande = await Commande.findIdCommandeByIdClient(idClient, db);
+        const sqlAddInit = 'INSERT INTO commande (idCommande, idProduit, idClient, statut, quantité) VALUES (?, ?, ?, ?, ?)';
+        const valuesAddInit = [idCommande, idProduit, idClient, statut, 1];
+
+        db.query(sqlAddInit, valuesAddInit, (err, result) => {
+          if (err) {
+            console.error('Error updating produit quantity:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+          res.json({ message: 'Product quantity updated successfully' });
+        });
+      } else {
+        console.log('product found');
+        // Calculate new quantity
+        const newQuantité = produit.quantité + quantité;
+        console.log(newQuantité);
+        const idCommande = await Commande.findIdCommandeByIdClient(idClient, db);
+        const sqlUpdate = 'UPDATE commande SET quantité = ? WHERE idCommande = ? AND idProduit = ? AND idClient = ?';
+
+        db.query(sqlUpdate, [newQuantité, idCommande, idProduit, idClient], (err, result) => {
+          if (err) {
+            console.error('Error updating produit quantity:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+          else{
+          res.json({ message: 'Product quantity updated successfully' });}
+        });
+      }
     }
-
-    res.json({ message: 'Product added successfully',idProduit: result.insertId});
-  });
-};
-
+  } catch (error) {
+    console.error('Error adding/updating produit:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 
 // Delete a product from the commande
-exports.deleteProduitFromCommande = async (req, res) => {
-  const { idProduit } = req.params;
-  const { client } = req; // Access the authenticated client from the request
+async function deleteProduitFromCommande(req, res, db) {
+  const { idProduit } = req.body;
+  const sqlDelete = 'DELETE FROM commande WHERE idProduit = ?';
+  const sqlUpdate = 'UPDATE commande SET quantité = ? WHERE idProduit = ?';
 
   try {
     // Check if the product with the provided productId exists
-    const produit = await Produit.findByPk(idproduit);
+    const produit = await Produit.findByIdProduit(idProduit, db);
 
     if (!produit) {
       return res.status(404).json({ error: 'Produit not found' });
     }
 
-    // Check if the produit is associated with the client in a commande
-    const commande = await Commande.findOne({
-      where: {
-        idProduit,
-        idClient: client.id,
-      },
-    });
+    // Calculate new quantity
+    const quantité = produit.quantité - 1;
 
-    if (!commande) {
-      return res.status(403).json({ error: 'Unauthorized: Produit not in client\'s commande' });
-    }
+    if (quantité === 0) {
+      // Delete the produit from the commande
+      db.query(sqlDelete, [idProduit], (err, result) => {
+        if (err) {
+          console.error('Error deleting produit:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
 
-    // Delete the produit from the commande
-    await commande.destroy();
+        res.json({ message: 'Product deleted successfully' });
+      });
+    } else {
+      // Update the quantity in the commande
+      db.query(sqlUpdate, [quantité, idProduit], (err, result) => {
+        if (err) {
+          console.error('Error updating produit quantity:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
 
-    res.json({ message: 'Produit deleted from commande successfully' });
-  } catch (error) {
-    console.error('Error deleting produit from commande:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-// Update the quantité of a produit in the commande
-exports.updateProduitQuantité = async (req, res) => {
-  const { idProduit } = req.params;
-  const { quantité } = req.body;
-  const { client } = req; // Access the authenticated client from the request
-
-  try {
-    // Check if the produit with the provided produitId exists
-    const produit = await Produit.findByPk(idProduit);
-
-    if (!produit) {
-      return res.status(404).json({ error: 'Produit not found' });
-    }
-
-    // Check if the produit is associated with the client in a commande
-    const commande = await Commande.findOne({
-      where: {
-        idProduit,
-        idClient: client.id,
-      },
-    });
-
-    if (!commande) {
-      return res.status(403).json({ error: 'Unauthorized: Produit not in client\'s commande' });
-    }
-
-    // Update the quantité of the produit in the commande
-    await commande.update({ quantité });
-
-    res.json({ message: 'Produit quantité updated in commande successfully' });
-  } catch (error) {
-    console.error('Error updating produit quantité in commande:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-exports.validateCommande = async (req, res) => {
-  const { client } = req; // Access the authenticated client from the request
-
-  try {
-    // Check if the client has a commande that is not validated
-    const commande = await Commande.findOne({
-      where: {
-        idClient: client.id,
-        statut: false, // Not validated
-      },
-    });
-
-    if (!commande) {
-      return res.status(403).json({ error: 'Unauthorized: No pending commande to validate' });
-    }
-
-    // Update the statut to true, indicating the commande is validated
-    await commande.update({ statut: true });
-
-    // Update product quantities
-    for (const produit of commande.produits) {
-      // Ensure the product quantity is subtracted from the stock
-      await produit.update({
-        stock: produit.stock - produit.CommandeProduit.quantity,
+        res.json({ message: 'Product quantity updated successfully' });
       });
     }
-
-    res.json({ message: 'Commande validated successfully' });
   } catch (error) {
+    console.error('Error deleting/updating produit:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+async function validateCommande (req, res, db) {
+  
+  const  {idClient}  = req.body;
+  console.log(idClient);
+  const sql = 'UPDATE commande SET statut = ? WHERE idClient = ?';
+  const statut = true;
+  const values = [statut, idClient];
+
+  try{
+    db.query(sql, values, (err, result) => {
+      console.log(result);
+      if (err) {
+        console.error('Error updating commande', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.json({ message: 'Commande validated successfully' });
+    })
+  }
+  catch (error) {
     console.error('Error validating commande:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-
-
+module.exports = {
+  addProduitToCommande,
+  deleteProduitFromCommande,
+  validateCommande,
+};
 

@@ -42,7 +42,9 @@ app.use(bodyParser.json());
 app.use('/api/clients', clientRoutes);
 app.use('/api/vendeurs', vendeurRoutes);
 app.use('/api/produits', produitRoutes);
-// app.use('/api/commandes', commandeRoutes);
+app.use('/api/commandes', commandeRoutes);
+app.use('/api/categories', categorieRoutes);
+
 
 app.set('db', db);
 
@@ -66,4 +68,4 @@ app.listen(port, () => {
 
 
 // Export the database connection and the query function
-// module.exports = { db, query }
+module.exports = { db, query }

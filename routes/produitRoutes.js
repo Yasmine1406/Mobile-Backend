@@ -1,7 +1,6 @@
 // produitRoutes.js
 const express = require('express');
 const router = express.Router();
-const authenMiddleware = require('../middlware/authenMiddlware');
 const addProduit = require('../controllers/produitController');
 const deleteProduit = require('../controllers/produitController');
 const updateProduit = require('../controllers/produitController');

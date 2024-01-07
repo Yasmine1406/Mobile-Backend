@@ -11,21 +11,20 @@ router.get('/', (req, res) => {
 
 
 const commandeController = require('../controllers/commandeController');
-const authMiddleware = require('../middlware/authenMiddlware');
+const { addProduitToCommande, deleteProduitFromCommande, validateCommande, } = require('../controllers/commandeController');
 
-// // Add a produit to the commande
-// router.post('/add', authMiddleware.authenticateClient, commandeController.addProduitToCommande);
 
-// // Deelete a produit from the commande
-// router.delete('/delete/:idProduit', authMiddleware.authenticateClient, commandeController.deleteProduitFromCommande);
+// Add a produit to the commande
+router.post('/addToCommande', (req,res) => addProduitToCommande(req, res,req.app.get('db')));
 
-// // Update the quantité of a produit in the commande
-// router.put('/update/:idProduit', authMiddleware.authenticateClient, commandeController.updateProduitQuantité);
+// Deelete a produit from the commande
+router.delete('/deleteFromCommande', (req,res) => deleteProduitFromCommande(req, res,req.app.get('db')));
 
-// // Validate the commande
-// router.put('/validate', authMiddleware.authenticateClient, commandeController.validateCommande);
 
-// // Export the router
-// module.exports = router;
+// Validate the commande
+router.put('/validate', (req,res) => validateCommande(req, res,req.app.get('db')));
+
+// Export the router
+module.exports = router;
 
 
