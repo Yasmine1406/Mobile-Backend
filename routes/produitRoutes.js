@@ -5,6 +5,7 @@ const authenMiddleware = require('../middlware/authenMiddlware');
 const addProduit = require('../controllers/produitController');
 const deleteProduit = require('../controllers/produitController');
 const updateProduit = require('../controllers/produitController');
+const getAllProduits = require('../controllers/produitController');
 
 // Define routes related to produits (common for both client and vendeur)
 router.get('/', (req, res) => {
@@ -22,6 +23,9 @@ router.delete('/delete',(req,res) => deleteProduit(req, res, req.app.get('db')))
 
 // Update a product
  router.put('/update',(req,res) => updateProduit(req, res, req.app.get('db')));
+
+// GetAllProducts
+router.get('/getAll',(req,res) => getAllProduits(req, res, req.app.get('db')));
 
 // Export the router
 module.exports = router;

@@ -2,31 +2,25 @@
 const { Commande, Produit } = require('../models/commande');
 
 // Add a produit to the commande
-exports.addProduitToCommande = async (req, res) => {
-  const { idProduit, quantité } = req.body;
-  const { client } = req; // Access the authenticated client from the request
+async function addProduitToCommande (req, res, db) {
+  const { idClient, idProduit, quantité } = req.body;
 
-  try {
-    // Check if the produit with the provided idProduit exists
-    const produit = await Produit.findByPk(idProduit);
+  // Generate a random idCommande using uuid
+  const idCommande = uuid.v4();
+  // Set statut as False by default
+  const statut = 'False';
+  // Insert the  produit into the commande
+  const sql = 'INSERT INTO commande (idCommande, idproduit, idClient, quantité, statut) VALUES (?, ?, ?, ?, ?)';
+  const values = [idClient, idProduit, quantité];
 
-    if (!produit) {
-      return res.status(404).json({ error: 'Produit not found' });
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error adding product:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    // Create a new commande entry associating the produit with the client
-    const newCommande = await Commande.create({
-      idProduit,
-      quantité,
-      clientId: client.id, // Associate the commande with the client
-      statut: false,
-    });
-
-    res.json({ message: 'Produit added to commande successfully', idCommande: newCommande.id });
-  } catch (error) {
-    console.error('Error adding produit to commande:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+    res.json({ message: 'Product added successfully',idProduit: result.insertId});
+  });
 };
 
 

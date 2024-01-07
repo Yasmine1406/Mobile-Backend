@@ -42,7 +42,7 @@ app.use(bodyParser.json());
 app.use('/api/clients', clientRoutes);
 app.use('/api/vendeurs', vendeurRoutes);
 app.use('/api/produits', produitRoutes);
-app.use('/api/commandes', commandeRoutes);
+// app.use('/api/commandes', commandeRoutes);
 
 app.set('db', db);
 

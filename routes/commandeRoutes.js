@@ -13,19 +13,19 @@ router.get('/', (req, res) => {
 const commandeController = require('../controllers/commandeController');
 const authMiddleware = require('../middlware/authenMiddlware');
 
-// Add a produit to the commande
-router.post('/add', authMiddleware.authenticateClient, commandeController.addProduitToCommande);
+// // Add a produit to the commande
+// router.post('/add', authMiddleware.authenticateClient, commandeController.addProduitToCommande);
 
-// Deelete a produit from the commande
-router.delete('/delete/:idProduit', authMiddleware.authenticateClient, commandeController.deleteProduitFromCommande);
+// // Deelete a produit from the commande
+// router.delete('/delete/:idProduit', authMiddleware.authenticateClient, commandeController.deleteProduitFromCommande);
 
-// Update the quantité of a produit in the commande
-router.put('/update/:idProduit', authMiddleware.authenticateClient, commandeController.updateProduitQuantité);
+// // Update the quantité of a produit in the commande
+// router.put('/update/:idProduit', authMiddleware.authenticateClient, commandeController.updateProduitQuantité);
 
-// Validate the commande
-router.put('/validate', authMiddleware.authenticateClient, commandeController.validateCommande);
+// // Validate the commande
+// router.put('/validate', authMiddleware.authenticateClient, commandeController.validateCommande);
 
-// Export the router
-module.exports = router;
+// // Export the router
+// module.exports = router;
 
 

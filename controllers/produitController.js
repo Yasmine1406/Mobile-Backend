@@ -48,7 +48,7 @@ const { DataTypes } = require('sequelize');
 // Update a product
 async function updateProduit (req, res, db) {
   const { idProduit, nomProduit, quantité, dateDePéremption, prix, idCategorie } = req.body;
-  const values = [idProduit, nomProduit, quantité, dateDePéremption, prix, idCategorie];
+  const values = [nomProduit, quantité, dateDePéremption, prix, idCategorie, idProduit];
   const sql = 'UPDATE produit SET nomProduit = ?, quantité = ?, dateDePéremption = ?, prix = ?, idCategorie = ? WHERE idProduit = ?';
 
   db.query(sql, values, (err, result) => {
@@ -56,13 +56,31 @@ async function updateProduit (req, res, db) {
       console.error('Error updating product:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
+    console.log(result)
 
     res.json({ message: 'Product updated successfully'});
   });
 };
 
+//Get all products
+async function getAllProduits(req, res, db) {
+  const sql = 'SELECT * FROM produit';
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    console.log(result);
+
+    res.json({ message: 'Products fetched successfully', data: result });
+  });
+}
+
+
 module.exports = addProduit;
 module.exports = deleteProduit;
 module.exports = updateProduit;
+module.exports = getAllProduits;
 
 
